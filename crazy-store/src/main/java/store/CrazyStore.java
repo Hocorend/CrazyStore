@@ -14,7 +14,7 @@ public class CrazyStore extends Application {
     public void start(Stage stage) throws Exception {
         this.stage = stage;
 
-        LoginScene loginScene = new LoginScene();
-        loginScene.loginScene(stage);
+        StoreScene storeScene = new StoreScene();
+        storeScene.storeScene(stage);
     }
 }
