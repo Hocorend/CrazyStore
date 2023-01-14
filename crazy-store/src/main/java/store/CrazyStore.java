@@ -8,13 +8,11 @@ import javafx.stage.Stage;
 
 public class CrazyStore extends Application {
 
-    Stage stage;
-
     @Override
     public void start(Stage stage) throws Exception {
-        this.stage = stage;
+        new LoginScene().loginScene();
 
-        StoreScene storeScene = new StoreScene();
-        storeScene.storeScene(stage);
     }
+
+
 }

@@ -1,6 +1,8 @@
 package store;
 
 import com.mysql.fabric.jdbc.FabricMySQLDriver;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -11,10 +13,13 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 import java.sql.*;
 
-public class LoginScene{
+public class LoginScene extends CrazyStore{
+
+    Stage loginStage = new Stage();
 
     Driver driver;
 
@@ -36,9 +41,9 @@ public class LoginScene{
     Label passwordLabel = new Label();
     TextField emailField = new TextField();
     PasswordField passwordField = new PasswordField();
-
     Label loginError = new Label();
-    public void loginScene() {
+    String user = "";
+    public void loginScene(){
         Stage loginStage = new Stage();
 
         loginStage.initModality(Modality.APPLICATION_MODAL);
@@ -90,14 +95,10 @@ public class LoginScene{
                         String psf = passwordField.getText();
                         if (ps.equals(psf)){
                             loginStage.close();
+                            new StoreScene().storeScene(emailField.getText());
                         }else loginError.setText("Incorrect login or password");
                     }
-                    //if (((String)rsPass.first()).compareTo(passwordField.getText()))
                 }else loginError.setText("Incorrect login or password");
-
-
-
-
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -106,6 +107,7 @@ public class LoginScene{
 
         Scene scene = new Scene(gridPaneMenu,600,500);
         loginStage.setScene(scene);
+        loginStage.setResizable(false);
 
         loginStage.showAndWait();
     }
