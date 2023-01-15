@@ -3,6 +3,7 @@ package store;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -22,7 +23,6 @@ public class StoreScene extends CrazyStore {
     Label descProduct = new Label();
     Label costProduct = new Label();
     Button addToCart = new Button();
-
     ScrollPane scrollPane;
 
     public void storeScene(String userName) {
@@ -30,6 +30,8 @@ public class StoreScene extends CrazyStore {
         GridPane gridPane = new GridPane();
         storeStage.setTitle("Crazy Store");
         gridPane.setGridLinesVisible(true);
+
+        // Основная компоновка
 
         ColumnConstraints[] columnConstraints = new ColumnConstraints[2];
         RowConstraints[] rowConstraints = new RowConstraints[2];
@@ -46,16 +48,50 @@ public class StoreScene extends CrazyStore {
             gridPane.getColumnConstraints().add(columnConstraints[i]);
             gridPane.getRowConstraints().add(rowConstraints[i]);
         }
+
+        //Компоновка хедера
+
+        GridPane gpHeader = new GridPane();
+        //gpHeader.setGridLinesVisible(true);
+        ColumnConstraints[] colConHeader = new ColumnConstraints[4];
+        RowConstraints[] rowConHeader = new RowConstraints[4];
+        for (int i = 0; i < colConHeader.length; i++) {
+            colConHeader[i]=new ColumnConstraints();
+            if(i==0)colConHeader[i].setMinWidth(150);
+            if(i==1)colConHeader[i].setMinWidth(900);
+            if(i==2)colConHeader[i].setMinWidth(120);
+            if(i==3)colConHeader[i].setMinWidth(250);
+            gpHeader.getColumnConstraints().add(colConHeader[i]);
+        }
+        for (int i = 0; i < rowConHeader.length; i++) {
+            rowConHeader[i] = new RowConstraints();
+            rowConHeader[i].setPercentHeight(25);
+            gpHeader.getRowConstraints().add(rowConHeader[i]);
+        }
+        gridPane.add(gpHeader,1,0);
+
+        nameProduct.setText(" Product name");
+        //GridPane.setHalignment(nameProduct, HPos.CENTER);
+        descProduct.setText(" Description");
+        //GridPane.setHalignment(descProduct, HPos.CENTER);
+        costProduct.setText(" Cost");
+        //GridPane.setHalignment(costProduct, HPos.CENTER);
+
+        gpHeader.add(nameProduct,0,3);
+        gpHeader.add(descProduct,1,3);
+        gpHeader.add(costProduct,2,3);
+
+        //Компонока списка товаров
+
         GridPane gpProduct = new GridPane();
         ColumnConstraints[] colConProduct = new ColumnConstraints[4];
         RowConstraints[] rowConProduct = new RowConstraints[2];
         for (int i = 0; i < colConProduct.length; i++) {
             colConProduct[i]=new ColumnConstraints();
-            colConProduct[i].setMinWidth(235);
-            colConProduct[i].setPercentWidth(30);
-            if(i==1){
-                colConProduct[i].setPercentWidth(90);
-            }
+            if(i==0)colConProduct[i].setMinWidth(150);
+            if(i==1)colConProduct[i].setMinWidth(900);
+            if(i==2)colConProduct[i].setMinWidth(120);
+            if(i==3)colConProduct[i].setMinWidth(250);
             gpProduct.getColumnConstraints().add(colConProduct[i]);
         }
         for (int i = 0; i < rowConProduct.length; i++) {
@@ -67,17 +103,6 @@ public class StoreScene extends CrazyStore {
             }
             gpProduct.getRowConstraints().add(rowConProduct[i]);
         }
-
-        nameProduct.setText("Product name");
-        GridPane.setHalignment(nameProduct, HPos.CENTER);
-        descProduct.setText("Description");
-        GridPane.setHalignment(descProduct, HPos.CENTER);
-        costProduct.setText("Cost");
-        GridPane.setHalignment(costProduct, HPos.CENTER);
-
-        gpProduct.add(nameProduct,0,0);
-        gpProduct.add(descProduct,1,0);
-        gpProduct.add(costProduct,2,0);
 
         VBox vBoxNP = new VBox();
         vBoxNP.setSpacing(5);
@@ -93,8 +118,6 @@ public class StoreScene extends CrazyStore {
 
         VBox vBoxButton = new VBox();
         gpProduct.add(vBoxButton,3,1);
-
-
 
         scrollPane = new ScrollPane(gpProduct);
         scrollPane.setPrefViewportHeight(800);
@@ -121,6 +144,7 @@ public class StoreScene extends CrazyStore {
 
 
         Scene scene = new Scene(gridPane, 1600, 800);
+        storeStage.setResizable(false);
         storeStage.setScene(scene);
 
         storeStage.show();
