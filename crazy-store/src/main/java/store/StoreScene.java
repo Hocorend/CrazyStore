@@ -2,11 +2,10 @@ package store;
 
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
@@ -23,6 +22,8 @@ public class StoreScene extends CrazyStore {
     Label descProduct = new Label();
     Label costProduct = new Label();
     Button addToCart = new Button();
+
+    ScrollPane scrollPane;
 
     public void storeScene(String userName) {
         Stage storeStage = new Stage();
@@ -46,21 +47,24 @@ public class StoreScene extends CrazyStore {
             gridPane.getRowConstraints().add(rowConstraints[i]);
         }
         GridPane gpProduct = new GridPane();
-        gpProduct.setGridLinesVisible(true);
         ColumnConstraints[] colConProduct = new ColumnConstraints[4];
         RowConstraints[] rowConProduct = new RowConstraints[2];
         for (int i = 0; i < colConProduct.length; i++) {
             colConProduct[i]=new ColumnConstraints();
+            colConProduct[i].setMinWidth(235);
             colConProduct[i].setPercentWidth(30);
             if(i==1){
-                colConProduct[i].setPercentWidth(80);
+                colConProduct[i].setPercentWidth(90);
             }
             gpProduct.getColumnConstraints().add(colConProduct[i]);
         }
         for (int i = 0; i < rowConProduct.length; i++) {
             rowConProduct[i] = new RowConstraints();
 
-            if(i!=0)rowConProduct[i].setPercentHeight(100);
+            if(i!=0){
+                rowConProduct[i].setPercentHeight(100);
+                rowConProduct[i].setMinHeight(715);
+            }
             gpProduct.getRowConstraints().add(rowConProduct[i]);
         }
 
@@ -90,6 +94,14 @@ public class StoreScene extends CrazyStore {
         VBox vBoxButton = new VBox();
         gpProduct.add(vBoxButton,3,1);
 
+
+
+        scrollPane = new ScrollPane(gpProduct);
+        scrollPane.setPrefViewportHeight(800);
+        scrollPane.setPannable(true);
+
+        gridPane.add(scrollPane,1,1);
+
         try (Connection connection = DriverManager.getConnection(url, username, password);
              PreparedStatement psProduct = connection.prepareStatement("SELECT nameProduct,descriptionProduct,costProduct FROM crazystore.Product")) {
 
@@ -104,9 +116,11 @@ public class StoreScene extends CrazyStore {
             e.printStackTrace();
         }
 
-        gridPane.add(gpProduct,1,1);
+        //gridPane.add(gpProduct,1,1);
 
-        Scene scene = new Scene(gridPane, 1600, 1000);
+
+
+        Scene scene = new Scene(gridPane, 1600, 800);
         storeStage.setScene(scene);
 
         storeStage.show();
