@@ -1,10 +1,5 @@
 package store;
 
-import javafx.geometry.HPos;
-import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -18,19 +13,19 @@ public class StoreScene extends CrazyStore {
     private static final String username = "root";
     private static final String password = "root";
 
-    Label balance = new Label();
-    Label nameProduct = new Label();
-    Label descProduct = new Label();
-    Label costProduct = new Label();
-    Button addToCart = new Button();
-    MenuBar menuBar = new MenuBar();
-    Menu adminMenu = new Menu("Admin menu");
-    MenuItem addProduct = new MenuItem("Add product");
-    ScrollPane scrollPane;
-    VBox vBoxNP = new VBox();
-    VBox vBoxDP = new VBox();
-    VBox vBoxCP = new VBox();
-    VBox vBoxButton = new VBox();
+    private Label balance = new Label();
+    private Label nameProduct = new Label();
+    private Label descProduct = new Label();
+    private Label costProduct = new Label();
+    private Button addToCart = new Button();
+    private MenuBar menuBar = new MenuBar();
+    private Menu adminMenu = new Menu("Admin menu");
+    private MenuItem addProduct = new MenuItem("Add product");
+    private ScrollPane scrollPane;
+    private VBox vBoxNP = new VBox();
+    private VBox vBoxDP = new VBox();
+    private VBox vBoxCP = new VBox();
+    private VBox vBoxButton = new VBox();
 
     public void storeScene(String userName) {
         Stage storeStage = new Stage();
