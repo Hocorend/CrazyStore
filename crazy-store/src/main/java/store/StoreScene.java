@@ -23,7 +23,14 @@ public class StoreScene extends CrazyStore {
     Label descProduct = new Label();
     Label costProduct = new Label();
     Button addToCart = new Button();
+    MenuBar menuBar = new MenuBar();
+    Menu adminMenu = new Menu("Admin menu");
+    MenuItem addProduct = new MenuItem("Add product");
     ScrollPane scrollPane;
+    VBox vBoxNP = new VBox();
+    VBox vBoxDP = new VBox();
+    VBox vBoxCP = new VBox();
+    VBox vBoxButton = new VBox();
 
     public void storeScene(String userName) {
         Stage storeStage = new Stage();
@@ -71,15 +78,18 @@ public class StoreScene extends CrazyStore {
         gridPane.add(gpHeader,1,0);
 
         nameProduct.setText(" Product name");
-        //GridPane.setHalignment(nameProduct, HPos.CENTER);
         descProduct.setText(" Description");
-        //GridPane.setHalignment(descProduct, HPos.CENTER);
         costProduct.setText(" Cost");
-        //GridPane.setHalignment(costProduct, HPos.CENTER);
+
+        adminMenu.getItems().addAll(addProduct);
+        menuBar.getMenus().add(adminMenu);
 
         gpHeader.add(nameProduct,0,3);
         gpHeader.add(descProduct,1,3);
         gpHeader.add(costProduct,2,3);
+
+        if (isAdminMode(userName)){
+            gpHeader.add(menuBar,3,0);}
 
         //Компонока списка товаров
 
@@ -104,20 +114,22 @@ public class StoreScene extends CrazyStore {
             gpProduct.getRowConstraints().add(rowConProduct[i]);
         }
 
-        VBox vBoxNP = new VBox();
+        //VBox vBoxNP = new VBox();
         vBoxNP.setSpacing(5);
         gpProduct.add(vBoxNP,0,1);
 
-        VBox vBoxDP = new VBox();
+        //VBox vBoxDP = new VBox();
         vBoxDP.setSpacing(5);
         gpProduct.add(vBoxDP,1,1);
 
-        VBox vBoxCP = new VBox();
+       //VBox vBoxCP = new VBox();
         vBoxCP.setSpacing(5);
         gpProduct.add(vBoxCP,2,1);
 
-        VBox vBoxButton = new VBox();
+        //VBox vBoxButton = new VBox();
         gpProduct.add(vBoxButton,3,1);
+
+        printProduct();
 
         scrollPane = new ScrollPane(gpProduct);
         scrollPane.setPrefViewportHeight(800);
@@ -125,6 +137,14 @@ public class StoreScene extends CrazyStore {
 
         gridPane.add(scrollPane,1,1);
 
+        Scene scene = new Scene(gridPane, 1600, 800);
+        storeStage.setResizable(false);
+        storeStage.setScene(scene);
+
+        storeStage.show();
+    }
+
+    public void printProduct(){
         try (Connection connection = DriverManager.getConnection(url, username, password);
              PreparedStatement psProduct = connection.prepareStatement("SELECT nameProduct,descriptionProduct,costProduct FROM crazystore.Product")) {
 
@@ -138,20 +158,22 @@ public class StoreScene extends CrazyStore {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        //gridPane.add(gpProduct,1,1);
-
-
-
-        Scene scene = new Scene(gridPane, 1600, 800);
-        storeStage.setResizable(false);
-        storeStage.setScene(scene);
-
-        storeStage.show();
     }
 
+    public boolean isAdminMode(String userName){
+        boolean adminMode = false;
+        try (Connection connection = DriverManager.getConnection(url, username, password);
+             PreparedStatement psAdminMode = connection.prepareStatement("SELECT adminMode FROM crazystore.User  where emailAddress='" + userName + "';")) {
 
-    //SELECT nameProduct,descriptionProduct,costProduct FROM crazystore.Product;
+            ResultSet rsAdminMode = psAdminMode.executeQuery();
+
+            while (rsAdminMode.next()){
+                adminMode = rsAdminMode.getBoolean("adminMode");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } return adminMode;
+    }
 
     public String balance(String userName) {
         String balance = "";
@@ -164,7 +186,7 @@ public class StoreScene extends CrazyStore {
                 balance = rsBalance.getString("balance");
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         } return balance;
     }
 }
