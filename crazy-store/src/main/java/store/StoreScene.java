@@ -1,8 +1,12 @@
 package store;
 
+import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 
 import java.sql.*;
@@ -56,7 +60,7 @@ public class StoreScene extends CrazyStore {
         GridPane gpHeader = new GridPane();
         //gpHeader.setGridLinesVisible(true);
         ColumnConstraints[] colConHeader = new ColumnConstraints[4];
-        RowConstraints[] rowConHeader = new RowConstraints[4];
+        RowConstraints[] rowConHeader = new RowConstraints[3];
         for (int i = 0; i < colConHeader.length; i++) {
             colConHeader[i]=new ColumnConstraints();
             if(i==0)colConHeader[i].setMinWidth(150);
@@ -67,21 +71,38 @@ public class StoreScene extends CrazyStore {
         }
         for (int i = 0; i < rowConHeader.length; i++) {
             rowConHeader[i] = new RowConstraints();
-            rowConHeader[i].setPercentHeight(25);
+            if(i==2)rowConHeader[i].setPercentHeight(40);
+            else if (i==0) rowConHeader[i].setPercentHeight(34);
+            else rowConHeader[i].setPercentHeight(25);
             gpHeader.getRowConstraints().add(rowConHeader[i]);
         }
         gridPane.add(gpHeader,1,0);
 
         nameProduct.setText(" Product name");
+        nameProduct.setFont(new Font(18));
+        nameProduct.setStyle("-fx-text-fill:red");
+        nameProduct.setStyle("-fx-font-weight: bold;-fx-text-fill:red");
+        GridPane.setValignment(nameProduct, VPos.BOTTOM);
+
         descProduct.setText(" Description");
+        descProduct.setFont(new Font(18));
+        descProduct.setStyle("-fx-text-fill:red");
+        descProduct.setStyle("-fx-font-weight: bold;-fx-text-fill:red");
+        GridPane.setValignment(descProduct, VPos.BOTTOM);
+
         costProduct.setText(" Cost");
+        costProduct.setFont(new Font(18));
+        costProduct.setStyle("-fx-text-fill:red");
+        costProduct.setStyle("-fx-font-weight: bold;-fx-text-fill:red");
+        GridPane.setValignment(costProduct, VPos.BOTTOM);
 
         adminMenu.getItems().addAll(addProduct);
+        adminMenu.setOnAction(actionEvent -> new AdminMenu().addProductInStore());
         menuBar.getMenus().add(adminMenu);
 
-        gpHeader.add(nameProduct,0,3);
-        gpHeader.add(descProduct,1,3);
-        gpHeader.add(costProduct,2,3);
+        gpHeader.add(nameProduct,0,2);
+        gpHeader.add(descProduct,1,2);
+        gpHeader.add(costProduct,2,2);
 
         if (isAdminMode(userName)){
             gpHeader.add(menuBar,3,0);}
@@ -146,9 +167,9 @@ public class StoreScene extends CrazyStore {
             ResultSet rsProduct = psProduct.executeQuery();
 
             while (rsProduct.next()){
-                vBoxNP.getChildren().add(new Label(" "+rsProduct.getString("nameProduct")));
-                vBoxDP.getChildren().add(new Label(" "+rsProduct.getString("descriptionProduct")));
-                vBoxCP.getChildren().add(new Label(" "+rsProduct.getString("costProduct")));
+                vBoxDP.getChildren().add(new Text(" "+rsProduct.getString("descriptionProduct")));
+                vBoxCP.getChildren().add(new Text(" "+rsProduct.getString("costProduct")));
+                vBoxNP.getChildren().add(new Text(" "+rsProduct.getString("nameProduct")));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -184,4 +205,6 @@ public class StoreScene extends CrazyStore {
             e.printStackTrace();
         } return balance;
     }
+
+
 }
