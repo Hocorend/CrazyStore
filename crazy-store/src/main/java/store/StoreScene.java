@@ -1,5 +1,6 @@
 package store;
 
+import javafx.animation.AnimationTimer;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -145,7 +146,17 @@ public class StoreScene extends CrazyStore {
         //VBox vBoxButton = new VBox();
         gpProduct.add(vBoxButton,3,1);
 
-        printProduct();
+        AnimationTimer animationTimer = new AnimationTimer() {
+            @Override
+            public void handle(long l) {
+                vBoxNP.getChildren().clear();
+                vBoxDP.getChildren().clear();
+                vBoxCP.getChildren().clear();
+                printProduct();
+            }
+        };
+        animationTimer.start();
+        //printProduct();
 
         scrollPane = new ScrollPane(gpProduct);
         scrollPane.setPrefViewportHeight(800);
