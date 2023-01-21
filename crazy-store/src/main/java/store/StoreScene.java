@@ -1,6 +1,10 @@
 package store;
 
 import javafx.animation.AnimationTimer;
+import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -31,6 +35,9 @@ public class StoreScene extends CrazyStore {
     private VBox vBoxDP = new VBox();
     private VBox vBoxCP = new VBox();
     private VBox vBoxButton = new VBox();
+
+    Button plus = new Button("+");
+    Button minus = new Button("-");
 
     public void storeScene(String userName) {
         Stage storeStage = new Stage();
@@ -111,6 +118,7 @@ public class StoreScene extends CrazyStore {
         //Компонока списка товаров
 
         GridPane gpProduct = new GridPane();
+        gpProduct.setGridLinesVisible(true);
         ColumnConstraints[] colConProduct = new ColumnConstraints[4];
         RowConstraints[] rowConProduct = new RowConstraints[2];
         for (int i = 0; i < colConProduct.length; i++) {
@@ -132,19 +140,25 @@ public class StoreScene extends CrazyStore {
         }
 
         //VBox vBoxNP = new VBox();
-        vBoxNP.setSpacing(5);
+        vBoxNP.setSpacing(10);
         gpProduct.add(vBoxNP,0,1);
 
         //VBox vBoxDP = new VBox();
-        vBoxDP.setSpacing(5);
+        vBoxDP.setSpacing(10);
         gpProduct.add(vBoxDP,1,1);
 
        //VBox vBoxCP = new VBox();
-        vBoxCP.setSpacing(5);
+        vBoxCP.setSpacing(10);
         gpProduct.add(vBoxCP,2,1);
 
         //VBox vBoxButton = new VBox();
         gpProduct.add(vBoxButton,3,1);
+
+        minus.setPrefWidth(25);
+        minus.setPrefHeight(10);
+        plus.setPrefWidth(25);
+        plus.setPrefHeight(10);
+
 
         AnimationTimer animationTimer = new AnimationTimer() {
             @Override
@@ -152,7 +166,8 @@ public class StoreScene extends CrazyStore {
                 vBoxNP.getChildren().clear();
                 vBoxDP.getChildren().clear();
                 vBoxCP.getChildren().clear();
-                printProduct();
+                vBoxButton.getChildren().clear();
+                printProduct(userName);
             }
         };
         animationTimer.start();
@@ -168,10 +183,11 @@ public class StoreScene extends CrazyStore {
         storeStage.setResizable(false);
         storeStage.setScene(scene);
 
+
         storeStage.show();
     }
 
-    public void printProduct(){
+    public void printProduct(String userName){
         try (Connection connection = DriverManager.getConnection(url, username, password);
              PreparedStatement psProduct = connection.prepareStatement("SELECT nameProduct,descriptionProduct,costProduct FROM crazystore.Product WHERE countProduct!=0")) {
 
@@ -181,6 +197,7 @@ public class StoreScene extends CrazyStore {
                 vBoxDP.getChildren().add(new Text(" "+rsProduct.getString("descriptionProduct")));
                 vBoxCP.getChildren().add(new Text(" "+rsProduct.getString("costProduct")));
                 vBoxNP.getChildren().add(new Text(" "+rsProduct.getString("nameProduct")));
+                vBoxButton.getChildren().add(new NodeAddButtons(rsProduct.getString("nameProduct"),userName).newNode());
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -216,6 +233,4 @@ public class StoreScene extends CrazyStore {
             e.printStackTrace();
         } return balance;
     }
-
-
 }
