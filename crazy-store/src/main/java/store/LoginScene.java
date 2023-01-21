@@ -32,7 +32,7 @@ public class LoginScene extends CrazyStore{
         }
     }
 
-    private static final String url = "jdbc:mysql://192.168.0.107:3308/crazystore";
+    private static final String url = "jdbc:mysql://192.168.0.102:3308/crazystore";
     private static final String username = "root";
     private static final String password = "root";
 

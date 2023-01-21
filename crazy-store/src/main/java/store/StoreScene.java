@@ -14,7 +14,7 @@ import java.sql.*;
 
 public class StoreScene extends CrazyStore {
 
-    private static final String url = "jdbc:mysql://192.168.0.107:3308/crazystore";
+    private static final String url = "jdbc:mysql://192.168.0.102:3308/crazystore";
     private static final String username = "root";
     private static final String password = "root";
 
@@ -173,7 +173,7 @@ public class StoreScene extends CrazyStore {
 
     public void printProduct(){
         try (Connection connection = DriverManager.getConnection(url, username, password);
-             PreparedStatement psProduct = connection.prepareStatement("SELECT nameProduct,descriptionProduct,costProduct FROM crazystore.Product")) {
+             PreparedStatement psProduct = connection.prepareStatement("SELECT nameProduct,descriptionProduct,costProduct FROM crazystore.Product WHERE countProduct!=0")) {
 
             ResultSet rsProduct = psProduct.executeQuery();
 
