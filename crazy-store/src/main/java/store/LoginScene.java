@@ -1,8 +1,6 @@
 package store;
 
 import com.mysql.fabric.jdbc.FabricMySQLDriver;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -13,15 +11,11 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 
 import java.sql.*;
 
 public class LoginScene extends CrazyStore{
-
-    Stage loginStage = new Stage();
-
-    Driver driver;
+    private Driver driver;
 
     {
         try {
@@ -36,13 +30,12 @@ public class LoginScene extends CrazyStore{
     private static final String username = "root";
     private static final String password = "root";
 
-    Button enter = new Button();
-    Label emailLabel = new Label();
-    Label passwordLabel = new Label();
-    TextField emailField = new TextField();
-    PasswordField passwordField = new PasswordField();
-    Label loginError = new Label();
-    String user = "";
+    private Button enter = new Button();
+    private Label emailLabel = new Label();
+    private Label passwordLabel = new Label();
+    private TextField emailField = new TextField();
+    private PasswordField passwordField = new PasswordField();
+    private Label loginError = new Label();
     public void loginScene(){
         Stage loginStage = new Stage();
 

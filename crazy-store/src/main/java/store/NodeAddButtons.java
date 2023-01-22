@@ -13,12 +13,13 @@ public class NodeAddButtons {
     private static final String username = "root";
     private static final String password = "root";
 
-    private String nameProduct;
-    private String userName;
+    private final String nameProduct;
+    private String emailAddressUser;
+    private Label countInCart;
 
-    NodeAddButtons(String nameProduct,String userName){
+    NodeAddButtons(String nameProduct,String emailAddressUser){
         this.nameProduct = nameProduct;
-        this.userName = userName;
+        this.emailAddressUser = emailAddressUser;
     }
 
     private int count = 0;
@@ -27,22 +28,81 @@ public class NodeAddButtons {
         Button plus = new Button("+");
         Button minus = new Button("-");
 
-        Label countInCart = new Label(""+count);
+        countInCart = new Label(""+count);
 
-        plus.setOnAction(actionEvent -> count++);
-        minus.setOnAction(actionEvent -> {
-            if(count>0)count--;
-        });
+        plus.setOnAction(actionEvent -> plusProduct());
+        minus.setOnAction(actionEvent -> minusProduct());
 
+        setCount();
         HBox hBox = new HBox(plus,minus,countInCart);
         return hBox;
     }
-    public void plusProduct(){
+
+    private void setCount() {
         try (Connection connection = DriverManager.getConnection(url, username, password);
-             PreparedStatement psPlusProduct = connection.prepareStatement("SELECT nameProduct,descriptionProduct,costProduct FROM crazystore.Product WHERE countProduct!=0")) {
+             PreparedStatement psCountLabel = connection.prepareStatement("SELECT countProduct FROM crazystore.Cart " +
+                     "where idUser=(SELECT idUser from crazystore.User where emailAddress='" + emailAddressUser + "')" +
+                     "AND idProduct=(SELECT idProduct from crazystore.Product WHERE nameProduct='" + nameProduct + "');")) {
 
-            psPlusProduct.execute();
+            ResultSet rsCountLabel = psCountLabel.executeQuery();
 
+            while (rsCountLabel.next()) {
+                count = rsCountLabel.getInt("countProduct");
+            }
+
+            countInCart.setText(String.valueOf(count));
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    public void plusProduct(){
+
+        String existProductInCart = "";
+        try (Connection connection = DriverManager.getConnection(url, username, password);
+             PreparedStatement psPlusProduct = connection.prepareStatement(
+                     "Select idProduct from crazystore.Cart" +
+                             " where idUser=(SELECT idUser from crazystore.User where emailAddress='"+emailAddressUser+"') and " +
+                             "idProduct=(SELECT idProduct from crazystore.Product WHERE nameProduct='"+nameProduct+"');")) {
+
+            ResultSet rsPlus = psPlusProduct.executeQuery();
+            while (rsPlus.next()){
+                 existProductInCart = rsPlus.getString("idProduct");
+            }
+
+            if (existProductInCart!=""){
+
+                PreparedStatement psExistToCart = connection.prepareStatement(
+                "Update crazystore.Cart set countProduct=countProduct+1 " +
+                        "where idUser=(SELECT idUser from crazystore.User where emailAddress='"+emailAddressUser+"') " +
+                        "AND idProduct=(SELECT idProduct from crazystore.Product WHERE nameProduct='"+nameProduct+"');");
+
+                psExistToCart.execute();
+            } else if (existProductInCart=="") {
+                PreparedStatement psNewToCart = connection.prepareStatement(
+                        "INSERT INTO crazystore.Cart (idUser,idProduct,countProduct) VALUES ((SELECT idUser from crazystore.User where emailAddress='"+emailAddressUser+"'),(SELECT idProduct from crazystore.Product WHERE nameProduct='"+nameProduct+"'),1);");
+                psNewToCart.execute();
+            }
+            setCount();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void minusProduct(){
+
+        try (Connection connection = DriverManager.getConnection(url, username, password);
+             PreparedStatement psExistToCart = connection.prepareStatement(
+                     "Update crazystore.Cart set countProduct=countProduct-1 " +
+                             "where idUser=(SELECT idUser from crazystore.User where emailAddress='"+emailAddressUser+"') " +
+                             "AND idProduct=(SELECT idProduct from crazystore.Product WHERE nameProduct='"+nameProduct+"');")) {
+
+            if (count==0){}
+            else if (count>0){
+                psExistToCart.execute();
+            }
+            setCount();
 
         } catch (SQLException e) {
             e.printStackTrace();

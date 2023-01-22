@@ -1,17 +1,11 @@
 package store;
 
-import javafx.animation.AnimationTimer;
-import javafx.event.ActionEvent;
-import javafx.event.Event;
-import javafx.event.EventHandler;
-import javafx.geometry.Insets;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 
 import java.sql.*;
@@ -31,15 +25,8 @@ public class StoreScene extends CrazyStore {
     private Menu adminMenu = new Menu("Admin menu");
     private MenuItem addProduct = new MenuItem("Add product");
     private ScrollPane scrollPane;
-    private VBox vBoxNP = new VBox();
-    private VBox vBoxDP = new VBox();
-    private VBox vBoxCP = new VBox();
-    private VBox vBoxButton = new VBox();
 
-    Button plus = new Button("+");
-    Button minus = new Button("-");
-
-    public void storeScene(String userName) {
+    public void storeScene(String emailAddressUser) {
         Stage storeStage = new Stage();
         GridPane gridPane = new GridPane();
         storeStage.setTitle("Crazy Store");
@@ -112,7 +99,7 @@ public class StoreScene extends CrazyStore {
         gpHeader.add(descProduct,1,2);
         gpHeader.add(costProduct,2,2);
 
-        if (isAdminMode(userName)){
+        if (isAdminMode(emailAddressUser)){
             gpHeader.add(menuBar,3,0);}
 
         //Компонока списка товаров
@@ -120,7 +107,6 @@ public class StoreScene extends CrazyStore {
         GridPane gpProduct = new GridPane();
         gpProduct.setGridLinesVisible(true);
         ColumnConstraints[] colConProduct = new ColumnConstraints[4];
-        RowConstraints[] rowConProduct = new RowConstraints[2];
         for (int i = 0; i < colConProduct.length; i++) {
             colConProduct[i]=new ColumnConstraints();
             if(i==0)colConProduct[i].setMinWidth(150);
@@ -129,49 +115,8 @@ public class StoreScene extends CrazyStore {
             if(i==3)colConProduct[i].setMinWidth(250);
             gpProduct.getColumnConstraints().add(colConProduct[i]);
         }
-        for (int i = 0; i < rowConProduct.length; i++) {
-            rowConProduct[i] = new RowConstraints();
 
-            if(i!=0){
-                rowConProduct[i].setPercentHeight(100);
-                rowConProduct[i].setMinHeight(715);
-            }
-            gpProduct.getRowConstraints().add(rowConProduct[i]);
-        }
-
-        //VBox vBoxNP = new VBox();
-        vBoxNP.setSpacing(10);
-        gpProduct.add(vBoxNP,0,1);
-
-        //VBox vBoxDP = new VBox();
-        vBoxDP.setSpacing(10);
-        gpProduct.add(vBoxDP,1,1);
-
-       //VBox vBoxCP = new VBox();
-        vBoxCP.setSpacing(10);
-        gpProduct.add(vBoxCP,2,1);
-
-        //VBox vBoxButton = new VBox();
-        gpProduct.add(vBoxButton,3,1);
-
-        minus.setPrefWidth(25);
-        minus.setPrefHeight(10);
-        plus.setPrefWidth(25);
-        plus.setPrefHeight(10);
-
-
-        AnimationTimer animationTimer = new AnimationTimer() {
-            @Override
-            public void handle(long l) {
-                vBoxNP.getChildren().clear();
-                vBoxDP.getChildren().clear();
-                vBoxCP.getChildren().clear();
-                vBoxButton.getChildren().clear();
-                printProduct(userName);
-            }
-        };
-        animationTimer.start();
-        //printProduct();
+        printProduct(emailAddressUser,gpProduct);
 
         scrollPane = new ScrollPane(gpProduct);
         scrollPane.setPrefViewportHeight(800);
@@ -187,17 +132,28 @@ public class StoreScene extends CrazyStore {
         storeStage.show();
     }
 
-    public void printProduct(String userName){
+    public void printProduct(String userName,GridPane gp){
         try (Connection connection = DriverManager.getConnection(url, username, password);
-             PreparedStatement psProduct = connection.prepareStatement("SELECT nameProduct,descriptionProduct,costProduct FROM crazystore.Product WHERE countProduct!=0")) {
+             PreparedStatement psProduct = connection.prepareStatement("SELECT nameProduct,descriptionProduct,costProduct FROM crazystore.Product WHERE countProduct!=0");
+             PreparedStatement psCountAvailableProduct = connection.prepareStatement("SELECT count(*) FROM crazystore.Product where countProduct>0;");
+             ) {
 
+            int countAvProd = 0;
+            int count = 0;
+
+            ResultSet rsCountAvProd = psCountAvailableProduct.executeQuery();
+            while (rsCountAvProd.next()){ countAvProd = rsCountAvProd.getInt("count(*)");}
+            RowConstraints[] rowConstraints = new RowConstraints[countAvProd];
             ResultSet rsProduct = psProduct.executeQuery();
-
             while (rsProduct.next()){
-                vBoxDP.getChildren().add(new Text(" "+rsProduct.getString("descriptionProduct")));
-                vBoxCP.getChildren().add(new Text(" "+rsProduct.getString("costProduct")));
-                vBoxNP.getChildren().add(new Text(" "+rsProduct.getString("nameProduct")));
-                vBoxButton.getChildren().add(new NodeAddButtons(rsProduct.getString("nameProduct"),userName).newNode());
+                rowConstraints[count] = new RowConstraints();
+                rowConstraints[count].setPrefHeight(100);
+                gp.add(new Text(" "+rsProduct.getString("nameProduct")),0,count);
+                gp.add(new Text(" "+rsProduct.getString("descriptionProduct")),1,count);
+                gp.add(new Text(" "+rsProduct.getString("costProduct")),2,count);
+                gp.add(new NodeAddButtons(rsProduct.getString("nameProduct"),userName).newNode(),3,count);
+
+                count++;
             }
         } catch (SQLException e) {
             e.printStackTrace();
