@@ -20,7 +20,7 @@ public class StoreScene extends CrazyStore {
     private Label nameProduct = new Label();
     private Label descProduct = new Label();
     private Label costProduct = new Label();
-    private Button addToCart = new Button();
+    private Button toCart = new Button("Shopping cart");
     private MenuBar menuBar = new MenuBar();
     private Menu adminMenu = new Menu("Admin menu");
     private MenuItem addProduct = new MenuItem("Add product");
@@ -95,9 +95,12 @@ public class StoreScene extends CrazyStore {
         adminMenu.setOnAction(actionEvent -> new AdminMenu().addProductInStore());
         menuBar.getMenus().add(adminMenu);
 
+        toCart.setOnAction(actionEvent -> new CartScene().cartScene());
+
         gpHeader.add(nameProduct,0,2);
         gpHeader.add(descProduct,1,2);
         gpHeader.add(costProduct,2,2);
+        gpHeader.add(toCart,3,2);
 
         if (isAdminMode(emailAddressUser)){
             gpHeader.add(menuBar,3,0);}
