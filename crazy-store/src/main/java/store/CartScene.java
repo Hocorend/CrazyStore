@@ -5,12 +5,19 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
+import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-public class CartScene extends StoreScene{
+import java.sql.*;
 
-    public void cartScene(){
+public class CartScene {
+
+    private static final String url = "jdbc:mysql://192.168.0.102:3308/crazystore";
+    private static final String username = "root";
+    private static final String password = "root";
+
+    public void cartScene(String userEmailAddress){
         Stage cartStage = new Stage();
         GridPane gpMain = new GridPane();
         gpMain.setGridLinesVisible(true);
@@ -23,10 +30,58 @@ public class CartScene extends StoreScene{
         gpMain.getColumnConstraints().add(cCMain);
         gpMain.getRowConstraints().addAll(rCMain[0],rCMain[1]);
 
+        GridPane gpProduct = new GridPane();
+        gpProduct.setGridLinesVisible(true);
+        ColumnConstraints[] colConProduct = new ColumnConstraints[4];
+        for (int i = 0; i < colConProduct.length; i++) {
+            colConProduct[i]=new ColumnConstraints();
+            if(i==0)colConProduct[i].setMinWidth(150);
+            if(i==1)colConProduct[i].setMinWidth(150);
+            if(i==2)colConProduct[i].setMinWidth(100);
+            if(i==3)colConProduct[i].setMinWidth(100);
+            gpProduct.getColumnConstraints().add(colConProduct[i]);
+        }
+
+        printCart(userEmailAddress,gpProduct);
+
+        gpMain.add(gpProduct,0,1);
+
         Scene sceneCart = new Scene(gpMain,500,500);
 
         cartStage.setScene(sceneCart);
         cartStage.initModality(Modality.APPLICATION_MODAL);
         cartStage.showAndWait();
+
+
+    }
+
+    public void printCart(String userEmailAddress,GridPane gp){
+        try (Connection connection = DriverManager.getConnection(url, username, password);
+             PreparedStatement psProduct = connection.prepareStatement("SELECT nameProduct,costProduct FROM crazystore.Product " +
+                     "WHERE idProduct=(Select idProduct from crazystore.Cart " +
+                     "where countProduct>0 and idUser=(select idUser from crazystore.User " +
+                     "where emailAddress='"+userEmailAddress+"'));");
+             PreparedStatement psCountAvailableProduct = connection.prepareStatement("SELECT count(*) FROM crazystore.Product where countProduct>0;");
+        ) {
+
+            int countAvProd = 0;
+            int count = 0;
+
+            ResultSet rsCountAvProd = psCountAvailableProduct.executeQuery();
+            while (rsCountAvProd.next()){ countAvProd = rsCountAvProd.getInt("count(*)");}
+            RowConstraints[] rowConstraints = new RowConstraints[countAvProd];
+            ResultSet rsProduct = psProduct.executeQuery();
+            while (rsProduct.next()){
+                rowConstraints[count] = new RowConstraints();
+                rowConstraints[count].setPrefHeight(100);
+                gp.add(new Text(" "+rsProduct.getString("nameProduct")),0,count);
+                gp.add(new Text(" "+rsProduct.getString("costProduct")),1,count);
+                gp.add(new NodeAddButtons(rsProduct.getString("nameProduct"),userEmailAddress).newNode(),3,count);
+
+                count++;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

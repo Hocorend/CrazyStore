@@ -55,12 +55,12 @@ public class AdminMenu {
 
             while (rsAvailability.next()){
                 if(rsAvailability.getInt("count(*)")!=0){
-                    try{
-                        PreparedStatement psProduct = connection.prepareStatement(
+                    try(PreparedStatement psProduct = connection.prepareStatement(
                             "Update crazystore.Product set countProduct=countProduct+"+Integer.parseInt(countTF.getText()) +
-                                    " where nameProduct='"+nameTF.getText()+"';");
-
+                                    " where nameProduct='"+nameTF.getText()+"';"))
+                    {
                         psProduct.execute();
+
                     }catch (NumberFormatException e){
                         result.setText("Fill in all fields correctly");
                         continue;
@@ -83,11 +83,12 @@ public class AdminMenu {
 
             while (rsAvailability.next()){
                 if(rsAvailability.getInt("count(*)")==0){
-                    try{
-                        PreparedStatement psProduct = connection.prepareStatement(
-                                "Insert into crazystore.Product (nameProduct,descriptionProduct,costProduct,countProduct)" +
-                                        " values ('"+nameTF.getText()+"','"+descTF.getText()+"',"+Double.parseDouble(costTF.getText())+","+Integer.parseInt(countTF.getText())+");");
+                    try(PreparedStatement psProduct = connection.prepareStatement(
+                            "Insert into crazystore.Product (nameProduct,descriptionProduct,costProduct,countProduct)" +
+                                    " values ('"+nameTF.getText()+"','"+descTF.getText()+"',"+Double.parseDouble(costTF.getText())+","+Integer.parseInt(countTF.getText())+");"))
+                    {
                         psProduct.execute();
+
                     }catch (NumberFormatException e){
                         result.setText("Fill in all fields correctly");
                         continue;

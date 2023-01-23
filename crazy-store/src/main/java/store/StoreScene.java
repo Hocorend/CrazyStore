@@ -95,7 +95,7 @@ public class StoreScene extends CrazyStore {
         adminMenu.setOnAction(actionEvent -> new AdminMenu().addProductInStore());
         menuBar.getMenus().add(adminMenu);
 
-        toCart.setOnAction(actionEvent -> new CartScene().cartScene());
+        toCart.setOnAction(actionEvent -> new CartScene().cartScene(emailAddressUser));
 
         gpHeader.add(nameProduct,0,2);
         gpHeader.add(descProduct,1,2);
