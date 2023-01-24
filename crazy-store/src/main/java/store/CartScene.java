@@ -2,6 +2,7 @@ package store;
 
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
@@ -25,6 +26,7 @@ public class CartScene {
         ColumnConstraints cCMain = new ColumnConstraints();
         RowConstraints[] rCMain = new RowConstraints[2];
         rCMain[0]=new RowConstraints();
+        rCMain[0].setPrefHeight(50);
         rCMain[1]=new RowConstraints();
 
         gpMain.getColumnConstraints().add(cCMain);
@@ -45,6 +47,7 @@ public class CartScene {
         printCart(userEmailAddress,gpProduct);
 
         gpMain.add(gpProduct,0,1);
+        gpMain.add(new Label("Balance: "+ new StoreScene().balance(userEmailAddress)),0,0);
 
         Scene sceneCart = new Scene(gpMain,500,500);
 
