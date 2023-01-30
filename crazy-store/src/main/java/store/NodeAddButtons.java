@@ -16,6 +16,7 @@ public class NodeAddButtons {
     private final String nameProduct;
     private String emailAddressUser;
     private Label countInCart;
+    private Label totalAvailable;
 
     NodeAddButtons(String nameProduct,String emailAddressUser){
         this.nameProduct = nameProduct;
@@ -27,6 +28,8 @@ public class NodeAddButtons {
     public Node newNode(){
         Button plus = new Button("+");
         Button minus = new Button("-");
+        totalAvailable = new Label(" Total available: ");
+        totalAvailable.setPrefWidth(170);
 
         countInCart = new Label(""+count);
 
@@ -34,7 +37,7 @@ public class NodeAddButtons {
         minus.setOnAction(actionEvent -> minusProduct());
 
         setCount();
-        HBox hBox = new HBox(plus,minus,countInCart);
+        HBox hBox = new HBox(totalAvailable,plus,minus,countInCart);
         return hBox;
     }
 
@@ -42,7 +45,16 @@ public class NodeAddButtons {
         try (Connection connection = DriverManager.getConnection(url, username, password);
              PreparedStatement psCountLabel = connection.prepareStatement("SELECT countProduct FROM crazystore.Cart " +
                      "where idUser=(SELECT idUser from crazystore.User where emailAddress='" + emailAddressUser + "')" +
-                     "AND idProduct=(SELECT idProduct from crazystore.Product WHERE nameProduct='" + nameProduct + "');")) {
+                     "AND idProduct=(SELECT idProduct from crazystore.Product WHERE nameProduct='" + nameProduct + "');");
+             PreparedStatement psTotalAvailable = connection.prepareStatement("select countProduct from crazystore.Product "+
+                     "where idProduct=(SELECT idProduct from crazystore.Product WHERE nameProduct='"+nameProduct+"')");
+             ) {
+
+            ResultSet rsTotalAvailable = psTotalAvailable.executeQuery();
+
+            while (rsTotalAvailable.next()){
+                totalAvailable.setText(" Total available: "+ rsTotalAvailable.getInt("countProduct"));
+            }
 
             ResultSet rsCountLabel = psCountLabel.executeQuery();
 
@@ -63,7 +75,21 @@ public class NodeAddButtons {
              PreparedStatement psPlusProduct = connection.prepareStatement(
                      "Select idProduct from crazystore.Cart" +
                              " where idUser=(SELECT idUser from crazystore.User where emailAddress='"+emailAddressUser+"') and " +
-                             "idProduct=(SELECT idProduct from crazystore.Product WHERE nameProduct='"+nameProduct+"');")) {
+                             "idProduct=(SELECT idProduct from crazystore.Product WHERE nameProduct='"+nameProduct+"');");
+             PreparedStatement psExistToCart = connection.prepareStatement(
+                     "Update crazystore.Cart set countProduct=countProduct+1 " +
+                             "where idUser=(SELECT idUser from crazystore.User where emailAddress='"+emailAddressUser+"') " +
+                             "AND idProduct=(SELECT idProduct from crazystore.Product WHERE nameProduct='"+nameProduct+"');");
+             PreparedStatement psNewToCart = connection.prepareStatement(
+                     "INSERT INTO crazystore.Cart (idUser,idProduct,countProduct) VALUES ((SELECT idUser from crazystore.User " +
+                             "where emailAddress='"+emailAddressUser+"'),(SELECT idProduct from crazystore.Product " +
+                             "WHERE nameProduct='"+nameProduct+"'),1);");
+             PreparedStatement psProductAvailable = connection.prepareStatement("Select (select countProduct from crazystore.Cart " +
+                     "where idUser=(SELECT idUser from crazystore.User where emailAddress='"+emailAddressUser+"') " +
+                     "AND idProduct=(SELECT idProduct from crazystore.Product WHERE nameProduct='"+nameProduct+"')) < " +
+                     "(select countProduct from crazystore.Product " +
+                     "where idProduct=(SELECT idProduct from crazystore.Product WHERE nameProduct='"+nameProduct+"')) AS Available;");
+             ) {
 
             ResultSet rsPlus = psPlusProduct.executeQuery();
             while (rsPlus.next()){
@@ -71,16 +97,15 @@ public class NodeAddButtons {
             }
 
             if (existProductInCart!=""){
+                ResultSet rsAvailable = psProductAvailable.executeQuery();
+                int available = 0;
+                while (rsAvailable.next()){
+                    available = rsAvailable.getInt("Available");
+                }
+                if(available==1)psExistToCart.execute();
 
-                PreparedStatement psExistToCart = connection.prepareStatement(
-                "Update crazystore.Cart set countProduct=countProduct+1 " +
-                        "where idUser=(SELECT idUser from crazystore.User where emailAddress='"+emailAddressUser+"') " +
-                        "AND idProduct=(SELECT idProduct from crazystore.Product WHERE nameProduct='"+nameProduct+"');");
-
-                psExistToCart.execute();
             } else if (existProductInCart=="") {
-                PreparedStatement psNewToCart = connection.prepareStatement(
-                        "INSERT INTO crazystore.Cart (idUser,idProduct,countProduct) VALUES ((SELECT idUser from crazystore.User where emailAddress='"+emailAddressUser+"'),(SELECT idProduct from crazystore.Product WHERE nameProduct='"+nameProduct+"'),1);");
+
                 psNewToCart.execute();
             }
             setCount();

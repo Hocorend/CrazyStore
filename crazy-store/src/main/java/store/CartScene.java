@@ -24,13 +24,16 @@ public class CartScene {
         gpMain.setGridLinesVisible(true);
 
         ColumnConstraints cCMain = new ColumnConstraints();
-        RowConstraints[] rCMain = new RowConstraints[2];
+        RowConstraints[] rCMain = new RowConstraints[3];
         rCMain[0]=new RowConstraints();
         rCMain[0].setPrefHeight(50);
         rCMain[1]=new RowConstraints();
+        rCMain[1].setPrefHeight(450);
+        rCMain[2]=new RowConstraints(50);
+
 
         gpMain.getColumnConstraints().add(cCMain);
-        gpMain.getRowConstraints().addAll(rCMain[0],rCMain[1]);
+        gpMain.getRowConstraints().addAll(rCMain[0],rCMain[1],rCMain[2]);
 
         GridPane gpProduct = new GridPane();
         gpProduct.setGridLinesVisible(true);
