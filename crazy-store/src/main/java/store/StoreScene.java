@@ -154,7 +154,7 @@ public class StoreScene extends CrazyStore {
                 gp.add(new Text(" "+rsProduct.getString("nameProduct")),0,count);
                 gp.add(new Text(" "+rsProduct.getString("descriptionProduct")),1,count);
                 gp.add(new Text(" "+rsProduct.getString("costProduct")),2,count);
-                gp.add(new NodeAddButtons(rsProduct.getString("nameProduct"),userName).newNode(),3,count);
+                gp.add(new NodeAddButtons(rsProduct.getString("nameProduct"),userName,true).newNode(),3,count);
 
                 count++;
             }

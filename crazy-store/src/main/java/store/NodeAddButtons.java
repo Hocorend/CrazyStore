@@ -3,6 +3,7 @@ package store;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 
@@ -17,10 +18,12 @@ public class NodeAddButtons {
     private String emailAddressUser;
     private Label countInCart;
     private Label totalAvailable;
+    private boolean displayTotal;
 
-    NodeAddButtons(String nameProduct,String emailAddressUser){
+    NodeAddButtons(String nameProduct,String emailAddressUser,boolean displayTotal){
         this.nameProduct = nameProduct;
         this.emailAddressUser = emailAddressUser;
+        this.displayTotal = displayTotal;
     }
 
     private int count = 0;
@@ -37,7 +40,11 @@ public class NodeAddButtons {
         minus.setOnAction(actionEvent -> minusProduct());
 
         setCount();
-        HBox hBox = new HBox(totalAvailable,plus,minus,countInCart);
+        HBox hBox = new HBox();
+        if(displayTotal){
+            hBox.getChildren().add(totalAvailable);
+        }
+        hBox.getChildren().addAll(plus,minus,countInCart);
         return hBox;
     }
 
@@ -128,6 +135,7 @@ public class NodeAddButtons {
                 psExistToCart.execute();
             }
             setCount();
+
 
         } catch (SQLException e) {
             e.printStackTrace();

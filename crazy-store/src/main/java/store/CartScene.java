@@ -18,6 +18,8 @@ public class CartScene {
     private static final String username = "root";
     private static final String password = "root";
 
+    private Label totalCost;
+
     public void cartScene(String userEmailAddress){
         Stage cartStage = new Stage();
         GridPane gpMain = new GridPane();
@@ -41,13 +43,15 @@ public class CartScene {
         for (int i = 0; i < colConProduct.length; i++) {
             colConProduct[i]=new ColumnConstraints();
             if(i==0)colConProduct[i].setMinWidth(150);
-            if(i==1)colConProduct[i].setMinWidth(150);
-            if(i==2)colConProduct[i].setMinWidth(100);
+            if(i==1)colConProduct[i].setMinWidth(100);
+            if(i==2)colConProduct[i].setMinWidth(150);
             if(i==3)colConProduct[i].setMinWidth(100);
             gpProduct.getColumnConstraints().add(colConProduct[i]);
         }
 
         printCart(userEmailAddress,gpProduct);
+
+        totalCost = new Label(" Amount: 0");
 
         gpMain.add(gpProduct,0,1);
         gpMain.add(new Label("Balance: "+ new StoreScene().balance(userEmailAddress)),0,0);
@@ -62,6 +66,9 @@ public class CartScene {
     }
 
     public void printCart(String userEmailAddress,GridPane gp){
+        int countAvProd = 0;
+        int count = 0;
+
         try (Connection connection = DriverManager.getConnection(url, username, password);
              PreparedStatement psProduct = connection.prepareStatement("SELECT nameProduct,costProduct FROM crazystore.Product " +
                      "WHERE idProduct IN (Select idProduct from crazystore.Cart " +
@@ -70,8 +77,6 @@ public class CartScene {
              PreparedStatement psCountAvailableProduct = connection.prepareStatement("SELECT count(*) FROM crazystore.Cart where countProduct>0;");
         ) {
 
-            int countAvProd = 0;
-            int count = 0;
 
             ResultSet rsCountAvProd = psCountAvailableProduct.executeQuery();
             while (rsCountAvProd.next()){ countAvProd = rsCountAvProd.getInt("count(*)");}
@@ -79,15 +84,48 @@ public class CartScene {
             RowConstraints[] rowConstraints = new RowConstraints[countAvProd];
             ResultSet rsProduct = psProduct.executeQuery();
             while (rsProduct.next()){
+
                 rowConstraints[count] = new RowConstraints();
                 gp.add(new Text(" "+rsProduct.getString("nameProduct")),0,count);
                 gp.add(new Text(" "+rsProduct.getString("costProduct")),1,count);
-                gp.add(new NodeAddButtons(rsProduct.getString("nameProduct"),userEmailAddress).newNode(),3,count);
+                gp.add(getAmountCost(userEmailAddress,rsProduct.getString("nameProduct")), 2, count);
+                gp.add(new NodeAddButtons(rsProduct.getString("nameProduct"),userEmailAddress,false).newNode(),3,count);
 
                 count++;
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+    public Text getAmountCost(String userEmailAddress, String nameProduct){
+        Text amountCost = null;
+
+        try(Connection connection = DriverManager.getConnection(url, username, password);
+            PreparedStatement psCostProduct = connection.prepareStatement("Select costProduct FROM crazystore.Product " +
+                    "where idProduct=(SELECT idProduct from crazystore.Product WHERE nameProduct='"+nameProduct+"');");
+            PreparedStatement psAmountInCart = connection.prepareStatement("SELECT countProduct FROM crazystore.Cart " +
+                    "where idUser=(SELECT idUser from crazystore.User where emailAddress='"+userEmailAddress+"') " +
+                    "AND idProduct=(SELECT idProduct from crazystore.Product WHERE nameProduct='"+nameProduct+"');");) {
+            amountCost = new Text(" Amount: 0");
+
+            ResultSet rsCostProduct = psCostProduct.executeQuery();
+            ResultSet rsAmountInCart = psAmountInCart.executeQuery();
+
+            int count=0;
+            double cost=0;
+
+            while (rsCostProduct.next()){
+                cost = rsCostProduct.getDouble("costProduct");
+            }
+            while (rsAmountInCart.next()){
+                count = rsAmountInCart.getInt("countProduct");
+            }
+
+            amountCost.setText(" Amount: "+(cost*count));
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return amountCost;
     }
 }
