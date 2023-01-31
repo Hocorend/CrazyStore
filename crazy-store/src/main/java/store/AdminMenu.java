@@ -2,6 +2,7 @@ package store;
 
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -19,7 +20,7 @@ public class AdminMenu {
     private TextField countTF = new TextField();
     private Label result = new Label();
 
-    public void addProductInStore(){
+    public void addProductInStore(String emailAddressUser, GridPane gpProduct){
         Stage stage = new Stage();
         stage.setTitle("Product Addition");
         VBox vBox = new VBox();
@@ -38,15 +39,15 @@ public class AdminMenu {
             }else vBox.getChildren().removeAll(desc,descTF,cost,costTF);
         });
         buttonAdd.setOnAction(actionEvent ->{
-            if(newProduct.isSelected()) addNewProduct();
-            else addProduct();}
+            if(newProduct.isSelected()) addNewProduct(emailAddressUser,gpProduct);
+            else addProduct(emailAddressUser,gpProduct);}
         );
         Scene scene = new Scene(vBox,500,500);
         stage.setScene(scene);
         stage.showAndWait();
     }
 
-    private void addProduct(){
+    private void addProduct(String emailAddressUser, GridPane gpProduct){
         try (Connection connection = DriverManager.getConnection(url, username, password);
              PreparedStatement psProductAvailability = connection.prepareStatement(
                      "SELECT count(*) FROM crazystore.Product where nameProduct='"+nameTF.getText()+"';")) {
@@ -60,6 +61,7 @@ public class AdminMenu {
                                     " where nameProduct='"+nameTF.getText()+"';"))
                     {
                         psProduct.execute();
+                        new StoreScene().printProduct(emailAddressUser,gpProduct);
 
                     }catch (NumberFormatException e){
                         result.setText("Fill in all fields correctly");
@@ -74,7 +76,7 @@ public class AdminMenu {
         }
     }
 
-    private void addNewProduct(){
+    private void addNewProduct(String emailAddressUser, GridPane gpProduct){
         try (Connection connection = DriverManager.getConnection(url, username, password);
              PreparedStatement psProductAvailability = connection.prepareStatement(
                      "SELECT count(*) FROM crazystore.Product where nameProduct='"+nameTF.getText()+"';")) {
@@ -88,6 +90,8 @@ public class AdminMenu {
                                     " values ('"+nameTF.getText()+"','"+descTF.getText()+"',"+Double.parseDouble(costTF.getText())+","+Integer.parseInt(countTF.getText())+");"))
                     {
                         psProduct.execute();
+
+                        new StoreScene().printProduct(emailAddressUser,gpProduct);
 
                     }catch (NumberFormatException e){
                         result.setText("Fill in all fields correctly");

@@ -1,6 +1,7 @@
 package store;
 
 import javafx.geometry.VPos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -25,6 +26,7 @@ public class StoreScene extends CrazyStore {
     private Menu adminMenu = new Menu("Admin menu");
     private MenuItem addProduct = new MenuItem("Add product");
     private ScrollPane scrollPane;
+    private GridPane gpProduct;
 
     public void storeScene(String emailAddressUser) {
         Stage storeStage = new Stage();
@@ -92,7 +94,7 @@ public class StoreScene extends CrazyStore {
         GridPane.setValignment(costProduct, VPos.BOTTOM);
 
         adminMenu.getItems().addAll(addProduct);
-        adminMenu.setOnAction(actionEvent -> new AdminMenu().addProductInStore());
+        adminMenu.setOnAction(actionEvent -> new AdminMenu().addProductInStore(emailAddressUser,gpProduct));
         menuBar.getMenus().add(adminMenu);
 
         toCart.setOnAction(actionEvent -> new CartScene().cartScene(emailAddressUser));
@@ -107,7 +109,7 @@ public class StoreScene extends CrazyStore {
 
         //Компонока списка товаров
 
-        GridPane gpProduct = new GridPane();
+        gpProduct = new GridPane();
         gpProduct.setGridLinesVisible(true);
         ColumnConstraints[] colConProduct = new ColumnConstraints[4];
         for (int i = 0; i < colConProduct.length; i++) {
@@ -136,6 +138,9 @@ public class StoreScene extends CrazyStore {
     }
 
     public void printProduct(String userName,GridPane gp){
+        Node node = gp.getChildren().get(0);
+        gp.getChildren().clear();
+        gp.getChildren().add(node);
         try (Connection connection = DriverManager.getConnection(url, username, password);
              PreparedStatement psProduct = connection.prepareStatement("SELECT nameProduct,descriptionProduct,costProduct FROM crazystore.Product WHERE countProduct!=0");
              PreparedStatement psCountAvailableProduct = connection.prepareStatement("SELECT count(*) FROM crazystore.Product where countProduct>0;");

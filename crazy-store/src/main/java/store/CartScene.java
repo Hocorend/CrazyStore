@@ -22,6 +22,7 @@ public class CartScene {
 
     public void cartScene(String userEmailAddress){
         Stage cartStage = new Stage();
+        cartStage.setTitle("Cart");
         GridPane gpMain = new GridPane();
         gpMain.setGridLinesVisible(true);
 
